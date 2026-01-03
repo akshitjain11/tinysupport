@@ -74,3 +74,34 @@ export async function POST(request: Request) {
     client.release();
   }
 }
+
+export async function GET() {
+  const client = await pool.connect();
+
+  try {
+    const result = await client.query(
+      `
+      SELECT id,public_id, title, customer_email, customer_name, status, created_at
+      FROM tickets
+      WHERE status = 'open
+      ORDER BY created_at DESC
+      `
+    ) ;
+    
+    const tickets = result.rows.map((row) => ({
+      id: row.id,
+      publicId: row.public_id,
+      title: row.title,
+      customerEmail: row.customer_email,
+    }));
+
+    return NextResponse.json({ tickets }, { status: 200 });
+  } catch {
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  } finally {
+    client.release();
+  }
+  }
