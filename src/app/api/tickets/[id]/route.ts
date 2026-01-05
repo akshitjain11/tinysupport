@@ -62,3 +62,52 @@ export async function GET(request: Request, {params}: { params: { id: string } }
         client.release();
     }
 }
+
+export async function PATCH(
+    request: Request,
+    { params }: { params: { id: string } }
+    ) {
+        const { id } = params;
+        const client = await pool.connect();
+
+        try {
+            const ticketResult = await client.query(
+                `
+                SELECT id FROM tickets WHERE id = $1
+                `,
+                [id]
+            );
+
+            if (ticketResult.rowCount === 0) {
+                return NextResponse.json(
+                    { error: "Ticket not found" },
+                    { status: 404 }
+                );
+            }
+
+            if (ticketResult.rows[0].status === 'closed') {
+                return NextResponse.json(
+                    { error: "Ticket is already closed" },
+                    { status: 400 }
+                );
+            }
+
+            await client.query(
+                `
+                UPDATE tickets
+                SET status = 'closed'
+                WHERE id = $1
+                `,
+                [id]
+            );
+
+            return NextResponse.json({ ok: true }, { status: 200 });
+        } catch {
+            return NextResponse.json(
+                { error: "Internal server error" },
+                { status: 500 }
+            );
+        } finally {
+            client.release();
+        }
+}   
