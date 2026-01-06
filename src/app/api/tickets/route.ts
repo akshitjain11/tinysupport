@@ -83,7 +83,7 @@ export async function GET() {
       `
       SELECT id,public_id, title, customer_email, customer_name, status, created_at
       FROM tickets
-      WHERE status = 'open
+      WHERE status = 'open'
       ORDER BY created_at DESC
       `
     ) ;

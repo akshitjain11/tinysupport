@@ -10,7 +10,7 @@ export default function ReplyForm({ticketId}: { ticketId: string }) {
         if (message.trim() === "") return;
         setSubmitting(true);
 
-        await fetch(`/api/tickets/${ticketId}/messages`, {
+        await fetch(`http://localhost:3000/api/tickets/${ticketId}/messages`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
